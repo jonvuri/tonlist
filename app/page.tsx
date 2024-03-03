@@ -7,6 +7,7 @@ import YoutubePlayer from './components/YoutubePlayer'
 import { store } from './store'
 
 import styles from './page.module.css'
+import MediaPlayer from "@/app/components/MediaPlayer";
 
 export default function Home() {
   // The store will load the initial state faster than the first render,
@@ -37,10 +38,11 @@ export default function Home() {
 
         <div className={styles.center}>
           {state.player_state?.playing_youtube_id ? (
-            <YoutubePlayer
-              songId={state.player_state?.playing_youtube_id}
-              songStart={startTime}
-            />
+            // <YoutubePlayer
+            //   songId={state.player_state?.playing_youtube_id}
+            //   songStart={startTime}
+            // />
+              <MediaPlayer url={state.player_state?.playing_youtube_id} />
           ) : (
             <p>Nothing playing</p>
           )}
