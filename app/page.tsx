@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSyncedStore } from '@syncedstore/react'
 
-import YoutubeControl from './components/YoutubeControl'
+import YoutubePlayer from './components/YoutubePlayer'
 import { store } from './store'
 
 import styles from './page.module.css'
@@ -19,6 +19,15 @@ export default function Home() {
 
   const state = useSyncedStore(store)
 
+  const [startTime, setStartTime] = useState(0)
+
+  const handlePlayNext = () => {
+    if (!state.playlist?.length) return
+
+    state.player_state.playing_youtube_id = state.playlist[0].youtube_id
+    state.playlist.splice(0, 1)
+  }
+
   return (
     mounted && (
       <main className={styles.main}>
@@ -27,46 +36,43 @@ export default function Home() {
         </div>
 
         <div className={styles.center}>
-          <YoutubeControl />
+          {state.player_state?.playing_youtube_id ? (
+            <YoutubePlayer
+              songId={state.player_state?.playing_youtube_id}
+              songStart={startTime}
+            />
+          ) : (
+            <p>Nothing playing</p>
+          )}
         </div>
 
         <div>
-          <p>Todo items:</p>
+          <p>Now playing:</p>
+          <b>{state.player_state?.playing_youtube_id}</b>
+          <p>Playlist:</p>
           <ul>
-            {state.todos.map((todo, i) => {
-              return (
-                <li
-                  key={i}
-                  style={{
-                    textDecoration: todo.completed ? 'line-through' : '',
-                  }}
-                >
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={todo.completed}
-                      onChange={(event) => {
-                        todo.completed = event.target.checked
-                      }}
-                    />
-                    {todo.title}
-                  </label>
-                </li>
-              )
+            {state.playlist?.map((entry, i) => {
+              return <li key={i}>{entry.youtube_id}</li>
             })}
           </ul>
           <input
-            placeholder="Enter a todo item and hit enter"
+            placeholder="Enter a YouTube video ID (last part of the YouTube URL) and hit enter"
             type="text"
             onKeyPress={(event) => {
               if (event.key === 'Enter') {
                 const target = event.target as HTMLInputElement
                 // Add a todo item using the text added in the textfield
-                state.todos.push({ completed: false, title: target.value })
+                state.playlist?.push({ youtube_id: target.value })
                 target.value = ''
               }
             }}
             style={{ width: '200px', maxWidth: '100%' }}
+          />
+          <button onClick={handlePlayNext}>Play next</button>
+          <input
+            type="number"
+            value={startTime}
+            onChange={(e) => setStartTime(Number(e.target.value))}
           />
         </div>
       </main>
