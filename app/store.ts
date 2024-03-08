@@ -1,3 +1,5 @@
+'use client'
+
 import { syncedStore, getYjsDoc } from '@syncedstore/core'
 import { WebrtcProvider } from 'y-webrtc'
 
@@ -21,7 +23,13 @@ export const store = syncedStore<{
 
 // Create a document that syncs automatically using Y-WebRTC
 const doc = getYjsDoc(store)
-export const webrtcProvider = new WebrtcProvider('syncedstore-playlist', doc)
+
+const roomName =
+  new URLSearchParams(window.location.search).get('room') || 'default-room'
+
+export const webrtcProvider = new WebrtcProvider(roomName, doc, {
+  signaling: ['ws://localhost:4444'],
+})
 
 export const disconnect = () => webrtcProvider.disconnect()
 export const connect = () => webrtcProvider.connect()
