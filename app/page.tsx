@@ -3,30 +3,30 @@
 import React, { useEffect, useState } from 'react'
 import { useSyncedStore } from '@syncedstore/react'
 
-import YoutubePlayer from './components/YoutubePlayer'
 import { store } from './store'
 
 import styles from './page.module.css'
-import MediaPlayer from "@/app/components/MediaPlayer";
+import MediaPlayer from '@/app/components/MediaPlayer'
 
 export default function Home() {
-  // The store will load the initial state faster than the first render,
-  // so React will complain the first client render doesn't match the server's
-  // render. We mount it after the first render with an effect to avoid this.
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
-    setMounted(true)
+    setMounted(true) // Ensures the component mounts after the first render
   }, [])
 
   const state = useSyncedStore(store)
-
   const [startTime, setStartTime] = useState(0)
+  const [playCounter, setPlayCounter] = useState(0) // Added playCounter state
 
   const handlePlayNext = () => {
     if (!state.playlist?.length) return
 
     state.player_state.playing_youtube_id = state.playlist[0].youtube_id
     state.playlist.splice(0, 1)
+
+    // Using this method to force re-render MediaPlayer component
+    // is there a better way to do this?
+    setPlayCounter((prevCounter) => prevCounter + 1)
   }
 
   return (
@@ -38,11 +38,13 @@ export default function Home() {
 
         <div className={styles.center}>
           {state.player_state?.playing_youtube_id ? (
-            // <YoutubePlayer
-            //   songId={state.player_state?.playing_youtube_id}
-            //   songStart={startTime}
-            // />
-              <MediaPlayer url={state.player_state?.playing_youtube_id} />
+            // added the key so it re-renders the MediaPlayer component
+            // when same url is played
+            <MediaPlayer
+              key={`${state.player_state.playing_youtube_id}-${playCounter}`}
+              url={state.player_state.playing_youtube_id}
+              initTime={startTime}
+            />
           ) : (
             <p>Nothing playing</p>
           )}
@@ -53,17 +55,16 @@ export default function Home() {
           <b>{state.player_state?.playing_youtube_id}</b>
           <p>Playlist:</p>
           <ul>
-            {state.playlist?.map((entry, i) => {
-              return <li key={i}>{entry.youtube_id}</li>
-            })}
+            {state.playlist?.map((entry, index) => (
+              <li key={index}>{entry.youtube_id}</li>
+            ))}
           </ul>
           <input
-            placeholder="Enter a YouTube video ID (last part of the YouTube URL) and hit enter"
+            placeholder="Enter URL to add to playlist"
             type="text"
             onKeyPress={(event) => {
               if (event.key === 'Enter') {
                 const target = event.target as HTMLInputElement
-                // Add a todo item using the text added in the textfield
                 state.playlist?.push({ youtube_id: target.value })
                 target.value = ''
               }
