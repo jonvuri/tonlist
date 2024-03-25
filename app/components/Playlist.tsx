@@ -5,6 +5,15 @@ import { useSyncedStore } from '@syncedstore/react'
 
 import { store, PlaylistEntry } from '@/app/store'
 
+const validUrl = (url: string) => {
+  try {
+    new URL(url)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
 type PlaylistEntryRowProps = {
   entry: PlaylistEntry
   onChange: (entry: PlaylistEntry) => void
@@ -39,7 +48,9 @@ const PlaylistEntryRow = ({
           }
         }}
       />
-      <button onClick={saveChanges}>Save</button>
+      <button onClick={saveChanges} disabled={!validUrl(editedUrl)}>
+        Save
+      </button>
     </>
   ) : (
     <>
@@ -85,9 +96,16 @@ const Playlist = () => {
         type="text"
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
-            const target = event.target as HTMLInputElement
-            state.playlist?.push({ url: target.value })
-            target.value = ''
+            const element = event.target as HTMLInputElement
+            const url = element.value
+
+            if (validUrl(url)) {
+              state.playlist?.push({ url })
+              element.value = ''
+            } else {
+              // TODO: Replace with better inline error handling
+              alert('Invalid URL')
+            }
           }
         }}
         style={{ width: '200px', maxWidth: '100%' }}
