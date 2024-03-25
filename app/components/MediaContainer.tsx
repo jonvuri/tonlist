@@ -11,10 +11,10 @@ const MediaContainer = () => {
 
   return (
     <div>
-      {state.player_state?.playing_youtube_id ? (
+      {state.player_state?.playing_url ? (
         // added the key so it re-renders the MediaPlayer component
         // when same url is played
-        <MediaPlayer url={state.player_state.playing_youtube_id} initTime={0} />
+        <MediaPlayer url={state.player_state.playing_url} initTime={0} />
       ) : (
         <p>Nothing playing</p>
       )}

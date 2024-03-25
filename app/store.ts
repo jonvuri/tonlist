@@ -3,13 +3,12 @@
 import { syncedStore, getYjsDoc } from '@syncedstore/core'
 import { WebrtcProvider } from 'y-webrtc'
 
-// (optional, define types for TypeScript)
-type PlaylistEntry = { youtube_id: string }
+export type PlaylistEntry = { url: string }
 
 type Playlist = PlaylistEntry[]
 
 type PlayerState = {
-  playing_youtube_id?: string
+  playing_url?: string
 }
 
 // Create your SyncedStore store
