@@ -68,6 +68,7 @@ const Playlist = () => {
     if (!state.playlist?.length) return
 
     state.player_state.playing_url = state.playlist[0].url
+    state.player_state.playing_start_time = Date.now()
     state.playlist.splice(0, 1)
   }
 

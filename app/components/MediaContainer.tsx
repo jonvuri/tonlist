@@ -14,7 +14,11 @@ const MediaContainer = () => {
       {state.player_state?.playing_url ? (
         // added the key so it re-renders the MediaPlayer component
         // when same url is played
-        <MediaPlayer url={state.player_state.playing_url} initTime={0} />
+        <MediaPlayer
+          key={state.player_state?.playing_start_time}
+          url={state.player_state.playing_url}
+          initTime={0}
+        />
       ) : (
         <p>Nothing playing</p>
       )}

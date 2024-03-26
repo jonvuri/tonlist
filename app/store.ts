@@ -9,6 +9,7 @@ type Playlist = PlaylistEntry[]
 
 type PlayerState = {
   playing_url?: string
+  playing_start_time?: number
 }
 
 // Create your SyncedStore store
