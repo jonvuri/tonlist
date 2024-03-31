@@ -1,9 +1,13 @@
 'use client'
 
 import React from 'react'
+import { Button, Heading, Section, TextInput, Tile } from '@carbon/react'
+import { Edit, Delete, SkipForwardFilled } from '@carbon/icons-react'
 import { useSyncedStore } from '@syncedstore/react'
 
 import { store, PlaylistEntry } from '@/app/store'
+
+import styles from './Playlist.module.sass'
 
 const validUrl = (url: string) => {
   try {
@@ -33,31 +37,51 @@ const PlaylistEntryRow = ({
     setEditing(false)
   }
 
-  return editing ? (
-    <>
-      <input
-        placeholder="Enter URL"
-        type="text"
-        value={editedUrl}
-        onChange={(event) => {
-          setEditedUrl(event.target.value)
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            saveChanges()
-          }
-        }}
-      />
-      <button onClick={saveChanges} disabled={!validUrl(editedUrl)}>
-        Save
-      </button>
-    </>
-  ) : (
-    <>
-      URL: {entry.url}
-      <button onClick={() => setEditing(true)}>Edit</button>
-      <button onClick={onRemove}>Remove</button>
-    </>
+  return (
+    <div className={styles['playlist-entry-row']}>
+      {editing ? (
+        <>
+          <TextInput
+            id="url-edit-input"
+            labelText="Enter new URL"
+            placeholder="Enter URL here"
+            type="text"
+            value={editedUrl}
+            onChange={(event) => {
+              setEditedUrl(event.target.value)
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                saveChanges()
+              }
+            }}
+          />
+          <Button onClick={saveChanges} disabled={!validUrl(editedUrl)}>
+            Save
+          </Button>
+        </>
+      ) : (
+        <>
+          <div style={{ marginRight: '1rem' }}>{entry.url}</div>
+          <Button
+            renderIcon={Edit}
+            iconDescription="Edit"
+            kind="ghost"
+            hasIconOnly
+            className={styles['playlist-entry-button']}
+            onClick={() => setEditing(true)}
+          />
+          <Button
+            renderIcon={Delete}
+            iconDescription="Remove"
+            kind="ghost"
+            hasIconOnly
+            className={styles['playlist-entry-button']}
+            onClick={onRemove}
+          />
+        </>
+      )}
+    </div>
   )
 }
 
@@ -73,11 +97,24 @@ const Playlist = () => {
   }
 
   return (
-    <div>
-      <p>Now playing:</p>
-      <b>{state.player_state?.playing_url}</b>
-      <p>Playlist:</p>
-      <ul>
+    <Section className={styles['playlist-container']}>
+      <Heading style={{ marginBottom: '1rem' }}>Now playing</Heading>
+      <Tile style={{ display: 'flex', alignItems: 'center' }}>
+        {state.player_state?.playing_url}
+      </Tile>
+      <div style={{ display: 'flex' }}>
+        <Heading style={{ flex: '1', margin: '1rem 0' }}>Next up</Heading>
+        <div style={{ alignSelf: 'center' }}>
+          <Button
+            onClick={handlePlayNext}
+            size="sm"
+            renderIcon={SkipForwardFilled}
+          >
+            Play next
+          </Button>
+        </div>
+      </div>
+      <ul className={styles['playlist-next-up-container']}>
         {state.playlist?.map((entry, index) => (
           <li key={index}>
             <PlaylistEntryRow
@@ -92,27 +129,29 @@ const Playlist = () => {
           </li>
         ))}
       </ul>
-      <input
-        placeholder="Enter URL to add to playlist"
-        type="text"
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            const element = event.target as HTMLInputElement
-            const url = element.value
+      <div>
+        <TextInput
+          id="url-input"
+          labelText="Enter a video URL to add to the playlist"
+          placeholder="Enter URL here"
+          type="text"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              const element = event.target as HTMLInputElement
+              const url = element.value
 
-            if (validUrl(url)) {
-              state.playlist?.push({ url })
-              element.value = ''
-            } else {
-              // TODO: Replace with better inline error handling
-              alert('Invalid URL')
+              if (validUrl(url)) {
+                state.playlist?.push({ url })
+                element.value = ''
+              } else {
+                // TODO: Replace with better inline error handling
+                alert('Invalid URL')
+              }
             }
-          }
-        }}
-        style={{ width: '200px', maxWidth: '100%' }}
-      />
-      <button onClick={handlePlayNext}>Play next</button>
-    </div>
+          }}
+        />
+      </div>
+    </Section>
   )
 }
 

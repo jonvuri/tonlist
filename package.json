@@ -10,6 +10,8 @@
     "format": "prettier --write app/"
   },
   "dependencies": {
+    "@carbon/icons-react": "^11.39.0",
+    "@carbon/react": "^1.53.1",
     "@syncedstore/core": "^0.6.0",
     "@syncedstore/react": "^0.6.0",
     "@types/node": "20.2.5",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "eslint-config-prettier": "^8.8.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "sass": "^1.72.0"
   }
 }

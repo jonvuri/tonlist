@@ -1,5 +1,9 @@
 import ReactPlayer from 'react-player'
 import { useEffect, useRef, useState } from 'react'
+import { Button, Slider } from '@carbon/react'
+import { PlayFilledAlt, StopFilledAlt } from '@carbon/icons-react'
+
+import styles from './MediaPlayer.module.sass'
 
 interface MediaPlayerProps {
   url: string
@@ -28,12 +32,7 @@ const MediaPlayer = ({ url, initTime }: MediaPlayerProps) => {
     }
   }
 
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Update the seekTime state but don't seek yet
-    setSeekTime(parseFloat(e.target.value))
-  }
-
-  const handleSeekMouseUp = () => {
+  const handleSeekRelease = () => {
     // When the mouse is released, perform the seek if seekTime is set
     if (seekTime !== null) {
       playerRef.current?.seekTo(seekTime, 'seconds')
@@ -47,25 +46,36 @@ const MediaPlayer = ({ url, initTime }: MediaPlayerProps) => {
   }, [url, initTime])
 
   return ReactPlayer.canPlay(url) ? (
-    <div>
+    <div className={styles['player-container']}>
       <ReactPlayer
         ref={playerRef}
+        width="100%"
+        height="100%"
         url={url}
         playing={playing}
         onDuration={setDuration}
         onProgress={onProgress}
       />
-      <div>
-        <button onClick={stopVideo}>Stop</button>
-        <button onClick={playVideo}>Play</button>
-        <input
-          type="range"
+      <div style={{ display: 'flex' }}>
+        <Button renderIcon={PlayFilledAlt} hasIconOnly onClick={playVideo} />
+        <Button
+          renderIcon={StopFilledAlt}
+          hasIconOnly
+          style={{ marginLeft: '1px' }}
+          onClick={stopVideo}
+        />
+        <Slider
+          className={styles['seek-slider']}
+          inputType="range"
+          hideTextInput
           min={0}
           max={duration}
+          formatLabel={() => ''} // Hide numerical min/max labels
           value={seekTime !== null ? seekTime : playedSeconds}
-          onChange={handleSeekChange}
-          onMouseUp={handleSeekMouseUp} // Seek when mouse button is released
-          onTouchEnd={handleSeekMouseUp} // Also seek when touch ends for touch devices
+          onChange={({ value }) => {
+            setSeekTime(value)
+          }}
+          onRelease={handleSeekRelease} // Seek when handle is released
         />
       </div>
     </div>
