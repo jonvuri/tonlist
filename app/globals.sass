@@ -1,0 +1,13 @@
+@use 'variables' as v
+
+@use "sass:map"
+@use '@carbon/react/scss/themes'
+@use '@carbon/react/scss/theme' with ($theme: themes.$g100)
+@use '@carbon/react/scss/components/button/tokens' with ($button-primary: v.$accent-color, $button-primary-hover: v.$accent-color-hover, $button-primary-active: v.$accent-color-active)
+@use '@carbon/react'
+
+body
+  background-color: theme.$background
+  height: 100vh
+  overflow: hidden
+  --cds-text-on-color: #161616

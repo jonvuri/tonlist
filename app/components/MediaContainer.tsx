@@ -10,7 +10,7 @@ const MediaContainer = () => {
   const state = useSyncedStore(store)
 
   return (
-    <div>
+    <>
       {state.player_state?.playing_url ? (
         // added the key so it re-renders the MediaPlayer component
         // when same url is played
@@ -22,7 +22,7 @@ const MediaContainer = () => {
       ) : (
         <p>Nothing playing</p>
       )}
-    </div>
+    </>
   )
 }
 

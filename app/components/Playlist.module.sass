@@ -1,0 +1,21 @@
+@use '../variables' as v
+
+@use '@carbon/react/scss/theme'
+
+.playlist-container
+  display: flex
+  flex-direction: column
+  height: 100%
+
+.playlist-next-up-container
+  flex: 1
+  display: flex
+  flex-direction: column
+
+.playlist-entry-row
+  display: flex
+  align-items: center
+
+// Have to be as specific as the carbon selector
+.playlist-entry-button:not([disabled]) svg
+  fill: v.$accent-color
