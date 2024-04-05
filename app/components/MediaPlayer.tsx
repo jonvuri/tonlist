@@ -13,36 +13,20 @@ interface MediaPlayerProps {
 const MediaPlayer = ({ url, initTime }: MediaPlayerProps) => {
   const playerRef = useRef<ReactPlayer>(null)
   const [playing, setPlaying] = useState(true)
-  const [playedSeconds, setPlayedSeconds] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [seekTime, setSeekTime] = useState<number | null>(null)
-
-  const stopVideo = () => {
-    setPlaying(false)
-  }
-
-  const playVideo = () => {
-    setPlaying(true)
-  }
+  const [sliderProgress, setSliderProgress] = useState(0)
+  const [sliderClicked, setSliderClicked] = useState(false)
 
   const onProgress = (state: { playedSeconds: number }) => {
-    // Only update playedSeconds if we're not seeking to avoid jumping
-    if (seekTime === null) {
-      setPlayedSeconds(state.playedSeconds)
-    }
-  }
-
-  const handleSeekRelease = () => {
-    // When the mouse is released, perform the seek if seekTime is set
-    if (seekTime !== null) {
-      playerRef.current?.seekTo(seekTime, 'seconds')
-      setPlayedSeconds(seekTime)
-      setSeekTime(null) // Reset seekTime after seeking
+    // Only update playedSeconds if we're not currently interacting with the
+    // slider, to avoid it jumping around underneath us
+    if (!sliderClicked) {
+      setSliderProgress(state.playedSeconds)
     }
   }
 
   useEffect(() => {
-    setPlayedSeconds(initTime)
+    setSliderProgress(initTime)
   }, [url, initTime])
 
   return ReactPlayer.canPlay(url) ? (
@@ -57,26 +41,43 @@ const MediaPlayer = ({ url, initTime }: MediaPlayerProps) => {
         onProgress={onProgress}
       />
       <div style={{ display: 'flex' }}>
-        <Button renderIcon={PlayFilledAlt} hasIconOnly onClick={playVideo} />
+        <Button
+          renderIcon={PlayFilledAlt}
+          hasIconOnly
+          onClick={() => setPlaying(true)}
+        />
         <Button
           renderIcon={StopFilledAlt}
           hasIconOnly
           style={{ marginLeft: '1px' }}
-          onClick={stopVideo}
+          onClick={() => setPlaying(false)}
         />
-        <Slider
-          className={styles['seek-slider']}
-          inputType="range"
-          hideTextInput
-          min={0}
-          max={duration}
-          formatLabel={() => ''} // Hide numerical min/max labels
-          value={seekTime !== null ? seekTime : playedSeconds}
-          onChange={({ value }) => {
-            setSeekTime(value)
-          }}
-          onRelease={handleSeekRelease} // Seek when handle is released
-        />
+        {/* Necessary to handle these events with a wrapper because the
+         * Slider change events stop working with an onMouseUp attached
+         */}
+        <div
+          onMouseDown={() => setSliderClicked(true)}
+          onMouseUp={() => setSliderClicked(false)}
+        >
+          <Slider
+            className={styles['seek-slider']}
+            inputType="range"
+            hideTextInput
+            min={0}
+            max={duration}
+            formatLabel={() => ''} // Hide numerical min/max labels
+            value={sliderProgress}
+            onChange={({ value }) => {
+              setSliderProgress(value)
+            }}
+            onRelease={() => {
+              if (sliderProgress !== null) {
+                playerRef.current?.seekTo(sliderProgress, 'seconds')
+              }
+              setSliderClicked(false)
+            }}
+          />
+        </div>
       </div>
     </div>
   ) : (
