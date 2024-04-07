@@ -4,9 +4,13 @@ import React from 'react'
 import { useSyncedStore } from '@syncedstore/react'
 
 import MediaPlayer from '@/app/components/MediaPlayer'
-import { store } from '@/app/store'
+import { Store } from '@/app/store'
 
-const MediaContainer = () => {
+type Props = {
+  store: Store
+}
+
+const MediaContainer = ({ store }: Props) => {
   const state = useSyncedStore(store)
 
   return (
