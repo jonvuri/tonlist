@@ -1,7 +1,9 @@
 'use client'
 
+import React from 'react'
 import { syncedStore, getYjsDoc } from '@syncedstore/core'
 import { WebrtcProvider } from 'y-webrtc'
+import { humanId } from 'human-id'
 
 export type PlaylistEntry = { url: string }
 
@@ -12,24 +14,50 @@ type PlayerState = {
   playing_start_time?: number
 }
 
-// Create your SyncedStore store
-export const store = syncedStore<{
+type StoreShape = {
   playlist: Playlist
   player_state: PlayerState
-}>({
-  playlist: [],
-  player_state: {},
-})
+}
 
-// Create a document that syncs automatically using Y-WebRTC
-const doc = getYjsDoc(store)
+export type Store = ReturnType<typeof syncedStore<StoreShape>>
 
-const roomName =
-  new URLSearchParams(window.location.search).get('room') || 'default-room'
+const getRoomName = () => {
+  let roomName = new URLSearchParams(window.location.search).get('room')
 
-export const webrtcProvider = new WebrtcProvider(roomName, doc, {
-  signaling: ['ws://localhost:4444'],
-})
+  if (!roomName) {
+    roomName = humanId({
+      separator: '-',
+      capitalize: false,
+    })
+    window.history.replaceState({}, '', `?room=${roomName}`)
+  }
 
-export const disconnect = () => webrtcProvider.disconnect()
-export const connect = () => webrtcProvider.connect()
+  return roomName
+}
+
+export const useStore = () => {
+  const [store, setStore] = React.useState<Store | null>(null)
+
+  React.useEffect(() => {
+    const store = syncedStore<StoreShape>({
+      playlist: [],
+      player_state: {},
+    })
+
+    const doc = getYjsDoc(store)
+
+    const roomName = getRoomName()
+
+    const webrtcProvider = new WebrtcProvider(roomName, doc, {
+      signaling: ['ws://localhost:4444'],
+    })
+
+    setStore(store)
+
+    return () => {
+      webrtcProvider.disconnect()
+    }
+  }, [])
+
+  return store
+}

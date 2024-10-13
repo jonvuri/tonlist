@@ -2,10 +2,16 @@
 
 import React from 'react'
 import { Button, Heading, Section, TextInput, Tile } from '@carbon/react'
-import { Edit, Delete, SkipForwardFilled } from '@carbon/icons-react'
+import {
+  Checkmark,
+  Copy,
+  Delete,
+  Edit,
+  SkipForwardFilled,
+} from '@carbon/icons-react'
 import { useSyncedStore } from '@syncedstore/react'
 
-import { store, PlaylistEntry } from '@/app/store'
+import { Store, PlaylistEntry } from '@/app/store'
 
 import styles from './Playlist.module.sass'
 
@@ -85,8 +91,22 @@ const PlaylistEntryRow = ({
   )
 }
 
-const Playlist = () => {
+type Props = {
+  store: Store
+}
+
+const Playlist = ({ store }: Props) => {
   const state = useSyncedStore(store)
+
+  const [showCopySuccess, setShowCopySuccess] = React.useState(false)
+
+  const handleCopyRoomUrl = async () => {
+    await navigator.clipboard.writeText(window.location.href)
+    setShowCopySuccess(true)
+    setTimeout(() => {
+      setShowCopySuccess(false)
+    }, 4000)
+  }
 
   const handlePlayNext = () => {
     if (!state.playlist?.length) return
@@ -98,7 +118,17 @@ const Playlist = () => {
 
   return (
     <Section className={styles['playlist-container']}>
-      <Heading style={{ marginBottom: '1rem' }}>Now playing</Heading>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Heading style={{ marginBottom: '1rem' }}>Now playing</Heading>
+        <div style={{ alignSelf: 'center' }}>
+          <Button
+            renderIcon={showCopySuccess ? Checkmark : Copy}
+            onClick={handleCopyRoomUrl}
+          >
+            {showCopySuccess ? 'Copied!' : 'Copy room URL'}
+          </Button>
+        </div>
+      </div>
       <Tile style={{ display: 'flex', alignItems: 'center' }}>
         {state.player_state?.playing_url}
       </Tile>
