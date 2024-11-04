@@ -14,6 +14,7 @@ import { useSyncedStore } from '@syncedstore/react'
 import { Store, PlaylistEntry } from '@/app/store'
 
 import styles from './Playlist.module.sass'
+import PlayHistory from './PlayHistory'
 
 const validUrl = (url: string) => {
   try {
@@ -111,13 +112,24 @@ const Playlist = ({ store }: Props) => {
   const handlePlayNext = () => {
     if (!state.playlist?.length) return
 
+    // Store the current entry in the play history
+    if (state.player_state.playing_url) {
+      state.play_history?.push({
+        url: state.player_state.playing_url,
+      })
+    }
+
+    // Update the player state to play the next entry in playlist
     state.player_state.playing_url = state.playlist[0].url
     state.player_state.playing_start_time = Date.now()
+
+    // Remove the next entry from the playlist
     state.playlist.splice(0, 1)
   }
 
   return (
     <Section className={styles['playlist-container']}>
+      <PlayHistory store={store} />
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Heading style={{ marginBottom: '1rem' }}>Now playing</Heading>
         <div style={{ alignSelf: 'center' }}>
