@@ -1,6 +1,8 @@
 # Getting Started
 
-Install dependencies:
+[Install pnpm](https://pnpm.io/installation) if you haven't already.
+
+Use pnpm to install dependencies:
 
 ```bash
 pnpm install
@@ -9,10 +11,6 @@ pnpm install
 Then run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
 ```
 
