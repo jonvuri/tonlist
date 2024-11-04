@@ -17,6 +17,7 @@ type PlayerState = {
 type StoreShape = {
   playlist: Playlist
   player_state: PlayerState
+  play_history: Playlist
 }
 
 export type Store = ReturnType<typeof syncedStore<StoreShape>>
@@ -42,6 +43,7 @@ export const useStore = () => {
     const store = syncedStore<StoreShape>({
       playlist: [],
       player_state: {},
+      play_history: [],
     })
 
     const doc = getYjsDoc(store)
